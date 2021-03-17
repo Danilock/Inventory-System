@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Arrow
   Description: Cool Arrow
+  ItemPortrait: {fileID: 21300000, guid: 81b71479ed893cd4281227fb106a1283, type: 3}
   ItemType: 3
   IsStackable: 1

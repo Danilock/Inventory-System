@@ -8,23 +8,56 @@ namespace InventorySystem{
     {
         [SerializeField] private Inventory _inventoryDataSource;
 
-        private Item _items;
-
         [Header("Slot Handler")]
-        [SerializeField] private GameObject _slotPrefab;
+        [SerializeField] private UISlot _slotPrefab;
         [SerializeField] private GridLayoutGroup _layoutGroup; 
+
+        private List<UISlot> _slots = new List<UISlot>();
 
         private void Start() {
             InitializeChildContent();
         }
 
-        private void InitializeChildContent(){
-            for(int i = 0; i < _inventoryDataSource.Items.Capacity; i++){
-                GameObject currentSlot = Instantiate(_slotPrefab);
+        private void OnEnable() {
+            _inventoryDataSource.OnAddItem.AddListener(AddNewUISlot);
+            _inventoryDataSource.OnModifyItem.AddListener(ModifyExistingSlot);
+        }
 
-                currentSlot.transform.SetParent(_layoutGroup.transform);
-                currentSlot.transform.localScale = new Vector3(1f, 1f, 1f);
+        private void OnDisable() {
+            _inventoryDataSource.OnAddItem.RemoveListener(AddNewUISlot);
+            _inventoryDataSource.OnModifyItem.RemoveListener(ModifyExistingSlot);
+        }
+
+        private void InitializeChildContent(){
+            for(int i = 0; i < _inventoryDataSource.Slots.Capacity; i++){
+                AddUISlot();
             }
+        }
+
+        private void AddUISlot(){
+            
+            UISlot currentSlot = Instantiate(_slotPrefab);
+
+            currentSlot.transform.SetParent(_layoutGroup.transform);
+            currentSlot.transform.localScale = new Vector3(1f, 1f, 1f);
+
+            _slots.Add(currentSlot);
+        }
+        
+        private void AddNewUISlot(Item newItemData){
+            UISlot emptySlot = _slots.Find(slot => slot.CurrentSlotData.CurrentItem == null);
+
+            emptySlot.SetData(newItemData);
+        }
+
+        private void ModifyExistingSlot(ItemSlot newSlotData){
+            UISlot slot = _slots.Find(slot => 
+                                        slot.CurrentSlotData.CurrentItem.ItemType ==
+                                        newSlotData.CurrentItem.ItemType
+                                        );
+            
+            if(slot != null)
+                slot.SetData(newSlotData.CurrentItem);
         }
     }
 }

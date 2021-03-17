@@ -10,4 +10,5 @@ public class Item
     public ItemTypeData ItemType;
     public bool IsStackable;
     public int Amount;
+    public Sprite ItemPortrait;
 }
