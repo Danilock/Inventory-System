@@ -3,60 +3,106 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
-using System;
 
 namespace InventorySystem{
-    public class DraggableItemSlot : DraggableObject, IBeginDragHandler, IEndDragHandler
+    [RequireComponent(typeof(UISlot))]
+    public class DraggableItemSlot : DraggableUIObject, IEndDragHandler
     {
-        [SerializeField] private Image _itemIcon;
-        [SerializeField] private TMP_Text _itemNameText;
-        [SerializeField] private TMP_Text _itemAmountText;
-        private Vector2 _initialPosition;
-        public RectTransform _draggableRect;
-        private Image _draggableFontImage;
-        private CanvasGroup _group;
-
-        private void Start() {
-            _draggableFontImage = GetComponent<Image>();
-            _draggableRect = GetComponent<RectTransform>();
-            _group = GetComponent<CanvasGroup>();
+        public UISlot UISlot{ get;  private set;}
+        
+        
+        private CanvasGroup _itemSlotGroup;
+        public GameObject PlaceHolder;
+        public Transform ParentToReturnTo;
+        private LayoutElement _itemLayout;
+        public int GetSiblingIndex{
+            get{
+                return this.transform.GetSiblingIndex();
+            }
         }
 
-        public override void OnDragUpdate(PointerEventData eventData)
+        public int LastSiblingPosition;
+
+        public override void OnBeginDragCaller(PointerEventData eventData)
         {
+            //Removing the parent
+            if(UISlot.CurrentSlotData.CurrentItem == null)
+                return;
+
+            LastSiblingPosition = this.transform.GetSiblingIndex();
+
+            InitializePlaceHolder();
+
+            SetUIMaskeable(false);
             
+            ParentToReturnTo = this.transform.parent;
+
+            this.transform.SetParent(this.transform.parent.parent);
+            _itemSlotGroup.blocksRaycasts = false;
+        }
+
+        public override void OnDragCaller(PointerEventData eventData)
+        {
+            //Moving the item to mouse position
+            if(UISlot.CurrentSlotData.CurrentItem != null)
+                this.transform.position = eventData.position;
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            SetChildrenMaskeableState(true);
-            _group.blocksRaycasts = true;
-
-            DraggableItemSlot itemSlot = eventData.pointerEnter.GetComponent<DraggableItemSlot>();
-
-            SwitchItemSlot(itemSlot);
-        }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            SetChildrenMaskeableState(false);
-            _group.blocksRaycasts = false;
-
-            _initialPosition = _draggableRect.anchoredPosition;
-        }
-
-        private void SetChildrenMaskeableState(bool value){
-            _itemIcon.maskable = value;
-            _itemAmountText.maskable = value;
-            _itemNameText.maskable = value;
-            _draggableFontImage.maskable = value;
-        }
-
-        private void SwitchItemSlot(DraggableItemSlot itemSlot){
-            this._draggableRect.anchoredPosition = itemSlot._draggableRect.anchoredPosition;
+            if(UISlot.CurrentSlotData.CurrentItem == null)
+                return;
             
-            itemSlot._draggableRect.anchoredPosition = this._initialPosition;
+            DraggableItemSlot itemSlot = eventData.pointerEnter?.GetComponent<DraggableItemSlot>();
+
+            if(itemSlot != null)
+                SwithItem(itemSlot);
+            else
+                ReturnToPlaceHolder();
+            
+        }
+
+        private void Start() {
+            UISlot = GetComponent<UISlot>();
+            _itemSlotGroup = GetComponent<CanvasGroup>();
+            _itemLayout = GetComponent<LayoutElement>();
+
+            ParentToReturnTo = this.transform.parent;
+        }
+
+        private void InitializePlaceHolder(){
+            PlaceHolder = new GameObject("PlaceHolder");
+            PlaceHolder.transform.SetParent(this.transform.parent);
+
+            LayoutElement layout = PlaceHolder.AddComponent<LayoutElement>();
+
+            PlaceHolder.transform.SetSiblingIndex( this.transform.GetSiblingIndex() );
+        }
+    
+        private void SetUIMaskeable(bool value) => UISlot.SetMaskeable(value);
+
+        public void SwithItem(DraggableItemSlot other){
+            SetPosition(other.ParentToReturnTo, other.transform
+            .GetSiblingIndex());
+
+            other.SetPosition(PlaceHolder.transform.parent, PlaceHolder.transform.GetSiblingIndex());
+
+            Destroy(PlaceHolder);
+        }
+
+        public void ReturnToPlaceHolder(){
+            _itemSlotGroup.blocksRaycasts = true;
+            
+            SetPosition(this.ParentToReturnTo, PlaceHolder.transform.GetSiblingIndex());
+
+            Destroy(PlaceHolder);
+        }
+
+        public void SetPosition(Transform parentToReturnTo, int siblingIndex){
+            _itemSlotGroup.blocksRaycasts = true;
+         
+            this.transform.SetParent(parentToReturnTo);
+            this.transform.SetSiblingIndex(siblingIndex);
         }
     }
 }

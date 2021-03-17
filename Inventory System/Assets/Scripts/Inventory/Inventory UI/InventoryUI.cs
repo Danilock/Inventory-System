@@ -52,8 +52,8 @@ namespace InventorySystem{
 
         private void ModifyExistingSlot(ItemSlot newSlotData){
             UISlot slot = _slots.Find(slot => 
-                                        slot.CurrentSlotData.CurrentItem.ItemType ==
-                                        newSlotData.CurrentItem.ItemType
+                                        slot.CurrentSlotData.CurrentItem.Name ==
+                                        newSlotData.CurrentItem.Name
                                         );
             
             if(slot != null)

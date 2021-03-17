@@ -26,7 +26,7 @@ namespace InventorySystem{
                 bool isActuallyOnInventory = false;
 
                 foreach(ItemSlot actualSlot in _slots){
-                    if(actualSlot.CurrentItem.ItemType == newItem.ItemType){
+                    if(actualSlot.CurrentItem.Name == newItem.Name){
                         actualSlot.CurrentItem.Amount += newItem.Amount;
                         OnModifyItem.Invoke(actualSlot);
                         isActuallyOnInventory = true;
