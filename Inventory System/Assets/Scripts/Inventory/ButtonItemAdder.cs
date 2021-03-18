@@ -18,6 +18,7 @@ public class ButtonItemAdder : MonoBehaviour, IPointerDownHandler
         newItem.ItemType = _itemToAdd.ItemType;
         newItem.Amount = _amount;
         newItem.IsStackable = _itemToAdd.IsStackable;
+        newItem.ItemPortrait = _itemToAdd.ItemPortrait;
 
         _inventoryTarget.AddItem(newItem);
     }

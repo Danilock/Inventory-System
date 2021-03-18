@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Sword
   Description: Awesome Sword
+  ItemPortrait: {fileID: 21300000, guid: 264030a207d3cc54e8e62a035700e8bf, type: 3}
   ItemType: 0
   IsStackable: 0

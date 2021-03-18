@@ -8,6 +8,7 @@ namespace InventorySystem{
     {
         public string Name;
         [TextArea] public string Description;
+        public Sprite ItemPortrait;
         public ItemTypeData ItemType;
 
         [Header("Stack")]
