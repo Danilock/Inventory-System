@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace InventorySystem{
     public class InventoryUI : MonoBehaviour
@@ -11,6 +12,10 @@ namespace InventorySystem{
         [Header("Slot Handler")]
         [SerializeField] private UISlot _slotPrefab;
         [SerializeField] private GridLayoutGroup _layoutGroup; 
+        [SerializeField] private Button _canvasTriggerButton;
+
+        [SerializeField] private GameObject _inventoryContainer;
+        private bool _isVisible = false;
 
         private List<UISlot> _slots = new List<UISlot>();
 
@@ -58,6 +63,30 @@ namespace InventorySystem{
             
             if(slot != null)
                 slot.SetData(newSlotData.CurrentItem);
+        }
+
+        //In case there is a button/function that can Open and Close the inventory
+        public void TriggerInventoryView(){
+            if(!_isVisible)
+                ShowInventory();
+            else
+                HideInventory();
+        }
+
+        public void ShowInventory(){
+            Sequence showSequence = DOTween.Sequence();
+
+            showSequence.Append(_inventoryContainer.transform.DOScale(1f, .3f));
+            showSequence.Append(_canvasTriggerButton.transform.DOScale(0f, .5f));
+            _isVisible = true;
+        }
+
+        public void HideInventory(){
+            Sequence showSequence = DOTween.Sequence();
+
+            showSequence.Append(_inventoryContainer.transform.DOScale(0f, .3f));
+            showSequence.Append(_canvasTriggerButton.transform.DOScale(1, .5f));
+            _isVisible = false;
         }
     }
 }
